@@ -102,8 +102,8 @@
     <dimen name="status_bar_battery_icon_height">13.0dp</dimen>
 
     <!-- Width of the battery icon in the status bar. The battery drawable assumes a 12x20 canvas,
-    so the width of the icon should be 13.0dp * (12.0 / 20.0) -->
-    <dimen name="status_bar_battery_icon_width">7.8dp</dimen>
+    so the width of the icon should be 13.0dp * (12.0 / 20.0) + start/end margins -->
+    <dimen name="status_bar_battery_icon_width">13.8dp</dimen>
 
     <!-- The font size for the clock in the status bar. -->
     <dimen name="status_bar_clock_size">14sp</dimen>
@@ -415,6 +415,7 @@
          On phones it's always 0dp but it's overridden in Car UI
     -->
     <dimen name="notification_panel_margin_top">0dp</dimen>
+    <dimen name="notification_panel_margin_top_combined_headers">8dp</dimen>
 
     <!-- The minimum content height for the split shade NSSL.
          It is used because if the height is too small, the expansion motion is too fast.
@@ -523,6 +524,7 @@
     <dimen name="qs_brightness_margin_bottom">16dp</dimen>
     <dimen name="qqs_layout_margin_top">16dp</dimen>
     <dimen name="qqs_layout_padding_bottom">24dp</dimen>
+    <dimen name="qqs_layout_padding_bottom_combined_headers">16dp</dimen>
 
     <!-- Most of the time it should be the same as notification_side_paddings as it's vertically
          aligned with notifications. The exception is split shade when this value becomes
@@ -560,7 +562,7 @@
     <dimen name="qs_panel_elevation">4dp</dimen>
     <dimen name="qs_panel_padding_bottom">@dimen/footer_actions_height</dimen>
     <dimen name="qs_panel_padding_top">48dp</dimen>
-    <dimen name="qs_panel_padding_top_combined_headers">80dp</dimen>
+    <dimen name="qs_panel_padding_top_combined_headers">72dp</dimen>
 
     <dimen name="qs_data_usage_text_size">14sp</dimen>
     <dimen name="qs_data_usage_usage_text_size">36sp</dimen>
@@ -722,7 +724,7 @@
     <dimen name="qs_emergency_calls_only_text_size">12sp</dimen>
 
     <!-- Padding before battery level text in status bar, QS, and Keyguard -->
-    <dimen name="battery_level_padding_start">4dp</dimen>
+    <dimen name="battery_level_padding_start">2dp</dimen>
 
     <dimen name="notification_section_header_height">48dp</dimen>
 
@@ -736,7 +738,7 @@
     <dimen name="kg_framed_avatar_size">32dp</dimen>
 
     <!-- Margin on the left side of the carrier text on Keyguard -->
-    <dimen name="keyguard_carrier_text_margin">16dp</dimen>
+    <dimen name="keyguard_carrier_text_margin">@dimen/status_bar_padding_start</dimen>
 
     <!-- Additional translation (downwards) for appearing notifications when going to the full shade
          from Keyguard. -->
@@ -768,6 +770,8 @@
     <!-- How much two taps can be apart to still be recognized as a double tap on the lockscreen -->
     <dimen name="double_tap_slop">32dp</dimen>
 
+    <dimen name="battery_margin_start">4dp</dimen>
+    <dimen name="battery_margin_end">2dp</dimen>
     <dimen name="battery_margin_bottom">0dp</dimen>
 
     <!-- Padding between the mobile signal indicator and the start icon when the roaming icon
@@ -783,7 +787,7 @@
     <!-- Starting margin before the signal cluster -->
 
     <!-- Padding between signal cluster and battery icon -->
-    <dimen name="signal_cluster_battery_padding">6dp</dimen>
+    <dimen name="signal_cluster_battery_padding">2dp</dimen>
 
     <!-- Screen pinning request width -->
     <dimen name="screen_pinning_request_width">@dimen/match_parent</dimen>
@@ -1399,6 +1403,8 @@
     <dimen name="internet_dialog_list_max_height">662dp</dimen>
     <!-- The height of the WiFi network in Internet panel. -->
     <dimen name="internet_dialog_wifi_network_height">72dp</dimen>
+    <!-- The height of the WiFi toggle layout in Internet panel -->
+    <dimen name="internet_dialog_wifi_toggle_height">56dp</dimen>
 
     <!-- The width of large/content heavy dialogs (e.g. Internet, Media output, etc) -->
     <dimen name="large_dialog_width">@dimen/match_parent</dimen>

@@ -5475,6 +5475,20 @@ public final class Settings {
         public static final String POINTER_SPEED = "pointer_speed";
 
         /**
+         * GameSpace: List of added games by user
+         * @hide
+         */
+        @Readable
+        public static final String GAMESPACE_GAME_LIST = "gamespace_game_list";
+
+        /**
+         * GameSpace: Whether fullscreen intent will be suppressed while in game session
+         * @hide
+         */
+        @Readable
+        public static final String GAMESPACE_SUPPRESS_FULLSCREEN_INTENT = "gamespace_suppress_fullscreen_intent";
+
+        /**
          * Whether lock-to-app will be triggered by long-press on recents.
          * @hide
          */
@@ -5499,6 +5513,16 @@ public final class Settings {
          */
         @Readable
         public static final String SHOW_BATTERY_PERCENT = "status_bar_show_battery_percent";
+
+        /**
+         * Setting to determine whether or not to show the battery icon drawable in the status bar
+         * (separate from percentage).
+         *    0 - Don't show icon
+         *    1 - Show icon
+         * @hide
+         */
+        @Readable
+        public static final String SHOW_BATTERY_ICON = "status_bar_show_battery_icon";
 
         /**
          * Whether or not to enable multiple audio focus.
@@ -10393,13 +10417,6 @@ public final class Settings {
                 "lockscreen_use_double_line_clock";
 
         /**
-         * Whether to show the vibrate icon in the Status Bar (default off)
-         *
-         * @hide
-         */
-        public static final String STATUS_BAR_SHOW_VIBRATE_ICON = "status_bar_show_vibrate_icon";
-
-        /**
          * Specifies whether the web action API is enabled.
          *
          * @hide
@@ -10814,6 +10831,12 @@ public final class Settings {
         public static final String TAP_GESTURE = "tap_gesture";
 
         /**
+         * Whether tethering is allowed to use VPN upstreams
+         */
+        @SuppressLint("NoSettingsProvider")
+        public static final String TETHERING_ALLOW_VPN_UPSTREAMS = "tethering_allow_vpn_upstreams";
+
+        /**
          * Controls whether the people strip is enabled.
          * @hide
          */
@@ -11024,6 +11047,12 @@ public final class Settings {
         public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
 
         /**
+         * Whether to turn on black theme
+         * @hide
+         */
+        public static final String SYSTEM_BLACK_THEME = "system_black_theme";
+
+        /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
          *
@@ -11188,6 +11217,20 @@ public final class Settings {
                 "extra_automatic_power_save_mode";
 
         /**
+         * Control whether FLAG_SECURE is ignored for all windows.
+         * @hide
+         */
+        @Readable
+        public static final String WINDOW_IGNORE_SECURE = "window_ignore_secure";
+
+        /**
+         * Whether to show an overlay in the bottom corner of the screen on copying stuff
+         * into the clipboard.
+         * @hide
+         */
+        public static final String SHOW_CLIPBOARD_OVERLAY = "show_clipboard_overlay";
+
+        /**
          * These entries are considered common between the personal and the managed profile,
          * since the managed profile doesn't get to change them.
          */
@@ -11275,6 +11318,18 @@ public final class Settings {
         public static void setLocationProviderEnabled(ContentResolver cr,
                 String provider, boolean enabled) {
         }
+
+        /** Whether to allow one finger quick settings expansion on the right side of the statusbar.
+         *
+         * @hide
+         */
+        public static final String STATUS_BAR_QUICK_QS_PULLDOWN = "status_bar_quick_qs_pulldown";
+
+       /**
+         * Immersive Navigation gesture
+         * @hide
+         */
+        public static final String IMMERSIVE_NAVIGATION = "immersive_navigation";
     }
 
     /**

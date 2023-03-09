@@ -28,11 +28,9 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
-import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.UserHandle;
-import android.provider.Settings;
 import android.telephony.SubscriptionManager;
 import android.util.ArrayMap;
 import android.util.IndentingPrintWriter;
@@ -43,12 +41,10 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.LinearLayout;
 
-import androidx.annotation.VisibleForTesting;
-
 import com.android.systemui.Dumpable;
 import com.android.systemui.R;
 import com.android.systemui.animation.Interpolators;
-import com.android.systemui.dagger.qualifiers.Main;
+import com.android.systemui.battery.BatteryMeterView;
 import com.android.systemui.dump.DumpManager;
 import com.android.systemui.flags.FeatureFlags;
 import com.android.systemui.plugins.statusbar.StatusBarStateController;
@@ -80,7 +76,6 @@ import com.android.systemui.statusbar.policy.KeyguardStateController;
 import com.android.systemui.util.CarrierConfigTracker;
 import com.android.systemui.util.CarrierConfigTracker.CarrierConfigChangedListener;
 import com.android.systemui.util.CarrierConfigTracker.DefaultDataSubscriptionChangedListener;
-import com.android.systemui.util.settings.SecureSettings;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -88,7 +83,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executor;
 
 /**
  * Contains the collapsed status bar and handles hiding/showing based on disable flags
@@ -105,6 +99,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     public static final String STATUS_BAR_ICON_MANAGER_TAG = "status_bar_icon_manager";
     public static final int FADE_IN_DURATION = 320;
     public static final int FADE_IN_DELAY = 50;
+    private static final int DISABLE_NETWORK_TRAFFIC = 0x80000000;
     private StatusBarFragmentComponent mStatusBarFragmentComponent;
     private PhoneStatusBarView mStatusBar;
     private final StatusBarStateController mStatusBarStateController;
@@ -114,6 +109,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     private LinearLayout mSystemIconArea;
     private LinearLayout mEndSideContent;
     private View mClockView;
+    private View mTrafficView;
     private View mOngoingCallChip;
     private View mNotificationIconAreaInner;
     private int mDisabled1;
@@ -133,8 +129,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     private final CarrierConfigTracker mCarrierConfigTracker;
     private final StatusBarHideIconsForBouncerManager mStatusBarHideIconsForBouncerManager;
     private final StatusBarIconController.DarkIconManager.Factory mDarkIconManagerFactory;
-    private final SecureSettings mSecureSettings;
-    private final Executor mMainExecutor;
     private final DumpManager mDumpManager;
 
     private List<String> mBlockedIcons = new ArrayList<>();
@@ -198,8 +192,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
             CarrierConfigTracker carrierConfigTracker,
             CollapsedStatusBarFragmentLogger collapsedStatusBarFragmentLogger,
             OperatorNameViewController.Factory operatorNameViewControllerFactory,
-            SecureSettings secureSettings,
-            @Main Executor mainExecutor,
             DumpManager dumpManager
     ) {
         mStatusBarFragmentComponentFactory = statusBarFragmentComponentFactory;
@@ -220,8 +212,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mCarrierConfigTracker = carrierConfigTracker;
         mCollapsedStatusBarFragmentLogger = collapsedStatusBarFragmentLogger;
         mOperatorNameViewControllerFactory = operatorNameViewControllerFactory;
-        mSecureSettings = secureSettings;
-        mMainExecutor = mainExecutor;
         mDumpManager = dumpManager;
     }
 
@@ -255,53 +245,25 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mDarkIconManager = mDarkIconManagerFactory.create(
                 view.findViewById(R.id.statusIcons), StatusBarLocation.HOME);
         mDarkIconManager.setShouldLog(true);
-        updateBlockedIcons();
+        mBlockedIcons = Arrays.asList(getResources().getStringArray(
+                R.array.config_collapsed_statusbar_icon_blocklist));
+        mDarkIconManager.setBlockList(mBlockedIcons);
         mStatusBarIconController.addIconGroup(mDarkIconManager);
         mEndSideContent = mStatusBar.findViewById(R.id.status_bar_end_side_content);
         mClockView = mStatusBar.findViewById(R.id.clock);
+        mTrafficView = mStatusBar.findViewById(R.id.network_traffic);
         mOngoingCallChip = mStatusBar.findViewById(R.id.ongoing_call_chip);
         showEndSideContent(false);
         showClock(false);
         initEmergencyCryptkeeperText();
         initOperatorName();
         initNotificationIconArea();
+        BatteryMeterView bmv = (BatteryMeterView) mStatusBar.findViewById(R.id.battery);
+        bmv.setIsStatusBar(true);
         mSystemEventAnimator =
                 new StatusBarSystemEventAnimator(mEndSideContent, getResources());
         mCarrierConfigTracker.addCallback(mCarrierConfigCallback);
         mCarrierConfigTracker.addDefaultDataSubscriptionChangedListener(mDefaultDataListener);
-    }
-
-    @VisibleForTesting
-    void updateBlockedIcons() {
-        mBlockedIcons.clear();
-
-        // Reload the blocklist from res
-        List<String> blockList = Arrays.asList(getResources().getStringArray(
-                R.array.config_collapsed_statusbar_icon_blocklist));
-        String vibrateIconSlot = getString(com.android.internal.R.string.status_bar_volume);
-        boolean showVibrateIcon =
-                mSecureSettings.getIntForUser(
-                        Settings.Secure.STATUS_BAR_SHOW_VIBRATE_ICON,
-                        1,
-                        UserHandle.USER_CURRENT) == 0;
-
-        // Filter out vibrate icon from the blocklist if the setting is on
-        for (int i = 0; i < blockList.size(); i++) {
-            if (blockList.get(i).equals(vibrateIconSlot)) {
-                if (showVibrateIcon) {
-                    mBlockedIcons.add(blockList.get(i));
-                }
-            } else {
-                mBlockedIcons.add(blockList.get(i));
-            }
-        }
-
-        mMainExecutor.execute(() -> mDarkIconManager.setBlockList(mBlockedIcons));
-    }
-
-    @VisibleForTesting
-    List<String> getBlockedIcons() {
-        return mBlockedIcons;
     }
 
     @Override
@@ -319,12 +281,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mStatusBarStateController.addCallback(this);
         initOngoingCallChip();
         mAnimationScheduler.addCallback(this);
-
-        mSecureSettings.registerContentObserverForUser(
-                Settings.Secure.getUriFor(Settings.Secure.STATUS_BAR_SHOW_VIBRATE_ICON),
-                false,
-                mVolumeSettingObserver,
-                UserHandle.USER_ALL);
     }
 
     @Override
@@ -334,7 +290,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mStatusBarStateController.removeCallback(this);
         mOngoingCallController.removeCallback(mOngoingCallListener);
         mAnimationScheduler.removeCallback(this);
-        mSecureSettings.unregisterContentObserver(mVolumeSettingObserver);
     }
 
     @Override
@@ -426,6 +381,15 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
                 showClock(animate);
             }
         }
+
+        // Update network traffic visibility if changed
+        if ((diff1 & DISABLE_NETWORK_TRAFFIC) != 0) {
+            if ((state1 & DISABLE_NETWORK_TRAFFIC) != 0) {
+                animateHiddenState(mTrafficView, View.GONE, animate);
+            } else {
+                animateShow(mTrafficView, animate);
+            }
+        }
     }
 
     protected int adjustDisableFlags(int state) {
@@ -433,6 +397,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
                 mStatusBarFragmentComponent.getHeadsUpAppearanceController().shouldBeVisible();
         if (headsUpVisible) {
             state |= DISABLE_CLOCK;
+            state |= DISABLE_NETWORK_TRAFFIC;
         }
 
         if (!mKeyguardStateController.isLaunchTransitionFadingAway()
@@ -443,6 +408,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
             state |= DISABLE_NOTIFICATION_ICONS;
             state |= DISABLE_SYSTEM_INFO;
             state |= DISABLE_CLOCK;
+            state |= DISABLE_NETWORK_TRAFFIC;
         }
 
         if (mNetworkController != null && EncryptionHelper.IS_DATA_ENCRYPTED) {
@@ -456,6 +422,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
 
         if (mOngoingCallController.hasOngoingCall()) {
             state &= ~DISABLE_ONGOING_CALL_CHIP;
+            state |= DISABLE_NETWORK_TRAFFIC;
         } else {
             state |= DISABLE_ONGOING_CALL_CHIP;
         }
@@ -687,13 +654,6 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
 
         mLocationPublisher.updateStatusBarMargin(leftMargin, rightMargin);
     }
-
-    private final ContentObserver mVolumeSettingObserver = new ContentObserver(null) {
-        @Override
-        public void onChange(boolean selfChange) {
-            updateBlockedIcons();
-        }
-    };
 
     // Listen for view end changes of PhoneStatusBarView and publish that to the privacy dot
     private View.OnLayoutChangeListener mStatusBarLayoutListener =

@@ -157,14 +157,7 @@ public class KeyguardStatusBarView extends RelativeLayout {
         mCarrierLabel.setTextSize(TypedValue.COMPLEX_UNIT_PX,
                 getResources().getDimensionPixelSize(
                         com.android.internal.R.dimen.text_size_small_material));
-        lp = (MarginLayoutParams) mCarrierLabel.getLayoutParams();
 
-        int marginStart = calculateMargin(
-                getResources().getDimensionPixelSize(R.dimen.keyguard_carrier_text_margin),
-                mPadding.first);
-        lp.setMarginStart(marginStart);
-
-        mCarrierLabel.setLayoutParams(lp);
         updateKeyguardStatusBarHeight();
     }
 
@@ -226,6 +219,7 @@ public class KeyguardStatusBarView extends RelativeLayout {
                 mMultiUserAvatar.setVisibility(View.GONE);
             }
         }
+        mBatteryView.setIsStatusBar(true);
         mBatteryView.setForceShowPercent(mBatteryCharging && mShowPercentAvailable);
     }
 
@@ -480,6 +474,7 @@ public class KeyguardStatusBarView extends RelativeLayout {
 
         applyDarkness(R.id.battery, mEmptyTintRect, intensity, iconColor);
         applyDarkness(R.id.clock, mEmptyTintRect, intensity, iconColor);
+        applyDarkness(R.id.network_traffic, mEmptyTintRect, intensity, iconColor);
     }
 
     private void applyDarkness(int id, ArrayList<Rect> tintAreas, float intensity, int color) {

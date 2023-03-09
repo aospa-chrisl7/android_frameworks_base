@@ -132,15 +132,19 @@ class LargeScreenShadeHeaderController @Inject constructor(
     private val batteryIcon: BatteryMeterView = header.findViewById(R.id.batteryRemainingIcon)
     private val clock: TextView = header.findViewById(R.id.clock)
     private val date: TextView = header.findViewById(R.id.date)
+    private val networkTraffic: TextView = header.findViewById(R.id.networkTraffic)
     private val iconContainer: StatusIconContainer = header.findViewById(R.id.statusIcons)
     private val qsCarrierGroup: QSCarrierGroup = header.findViewById(R.id.carrier_group)
 
     private var cutoutLeft = 0
     private var cutoutRight = 0
+    private var sbPaddingLeft = 0
+    private var sbPaddingRight = 0
     private var roundedCorners = 0
     private var lastInsets: WindowInsets? = null
     private var textColorPrimary = Color.TRANSPARENT
 
+    private var isSingleCarrier = false
     private var qsDisabled = false
     private var visible = false
         set(value) {
@@ -162,6 +166,19 @@ class LargeScreenShadeHeaderController @Inject constructor(
             }
             field = value
             onShadeExpandedChanged()
+        }
+
+    /**
+     * Whether the QS is expanding or collapsing, in order to make changes to layout when
+     * the header elements are hidden at half progress (0.5f).
+     */
+    var qsExpanding = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            updateCarrierIcons()
         }
 
     /**
@@ -304,8 +321,7 @@ class LargeScreenShadeHeaderController @Inject constructor(
         dumpManager.registerDumpable(this)
         configurationController.addCallback(configurationControllerListener)
 
-        updateVisibility()
-        updateTransition()
+        onHeaderStateChanged();
         updateResources()
     }
 
@@ -351,8 +367,8 @@ class LargeScreenShadeHeaderController @Inject constructor(
         val cutout = insets.displayCutout
 
         val sbInsets: Pair<Int, Int> = insetsProvider.getStatusBarContentInsetsForCurrentRotation()
-        cutoutLeft = sbInsets.first
-        cutoutRight = sbInsets.second
+        cutoutLeft = sbInsets.first + sbPaddingLeft
+        cutoutRight = sbInsets.second + sbPaddingRight
         val hasCornerCutout: Boolean = insetsProvider.currentRotationHasCornerCutout()
         updateQQSPaddings()
         // Set these guides as the left/right limits for content that lives in the top row, using
@@ -450,6 +466,7 @@ class LargeScreenShadeHeaderController @Inject constructor(
                 "position: $qsExpandedFraction"
             )
             header.progress = qsExpandedFraction
+            qsExpanding = qsExpandedFraction > 0.5f
         }
     }
 
@@ -466,15 +483,29 @@ class LargeScreenShadeHeaderController @Inject constructor(
     }
 
     private fun updateSingleCarrier(singleCarrier: Boolean) {
+        isSingleCarrier = singleCarrier
         if (singleCarrier) {
             iconContainer.removeIgnoredSlots(carrierIconSlots)
         } else {
+            updateCarrierIcons()
+        }
+    }
+
+    private fun updateCarrierIcons() {
+        if (isSingleCarrier) {
+            return
+        }
+        if (qsExpanding) {
             iconContainer.addIgnoredSlots(carrierIconSlots)
+        } else {
+            iconContainer.removeIgnoredSlots(carrierIconSlots)
         }
     }
 
     private fun updateResources() {
         roundedCorners = resources.getDimensionPixelSize(R.dimen.rounded_corner_content_padding)
+        sbPaddingLeft = resources.getDimensionPixelSize(R.dimen.status_bar_padding_start)
+        sbPaddingRight = resources.getDimensionPixelSize(R.dimen.status_bar_padding_end)
         val padding = resources.getDimensionPixelSize(R.dimen.qs_panel_padding)
         header.setPadding(padding, header.paddingTop, padding, header.paddingBottom)
         updateQQSPaddings()
@@ -492,6 +523,7 @@ class LargeScreenShadeHeaderController @Inject constructor(
             }
             clock.setTextColor(textColorPrimary)
             date.setTextColor(textColorPrimary)
+            networkTraffic.setTextColor(textColorPrimary)
             qsCarrierGroup.updateColors(textColorPrimary, colorStateList)
             batteryIcon.updateColors(textColorPrimary, textColorSecondary, textColorPrimary)
         }

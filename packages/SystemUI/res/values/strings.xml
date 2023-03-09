@@ -668,6 +668,11 @@
         =1 {# device}
         other {# devices}
     }</string>
+    <!-- QuickSettings: InternetDialog: Summary for how many devices are connected to the hotspot [CHAR LIMIT=NONE] -->
+    <string name="quick_settings_internet_hotspot_summary_num_devices">{count, plural,
+        =1 {# device connected}
+        other {# devices connected}
+    }</string>
     <!-- QuickSettings: Notifications [CHAR LIMIT=NONE] -->
     <!-- QuickSettings: Flashlight [CHAR LIMIT=NONE] -->
     <string name="quick_settings_flashlight_label">Flashlight</string>
@@ -1267,6 +1272,12 @@
     <!-- Name of the data saver status bar icon. -->
     <string name="status_bar_data_saver">Data saver</string>
 
+    <!-- Name of the location status bar icon. -->
+    <string name="status_bar_location">Location</string>
+
+    <!-- Name of the microphone status bar icon. -->
+    <string name="status_bar_microphone">Microphone</string>
+
     <!-- Wallet strings -->
     <!-- Wallet empty state, title [CHAR LIMIT=32] -->
     <string name="wallet_title">Wallet</string>
@@ -1738,7 +1749,7 @@
     <string name="right_icon">Right icon</string>
 
     <!-- Label for area where tiles can be dragged out of [CHAR LIMIT=60] -->
-    <string name="drag_to_add_tiles">Hold and drag to add tiles</string>
+    <string name="drag_to_add_tiles">Press on tiles to add or remove</string>
 
     <!-- Label for header of customize QS [CHAR LIMIT=60] -->
     <string name="drag_to_rearrange_tiles">Hold and drag to rearrange tiles</string>
