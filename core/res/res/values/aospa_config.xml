@@ -16,6 +16,9 @@
 -->
 <resources>
 
+    <!-- Absolute path of the DC dimming node -->
+    <string name="config_dcdNodePath"></string>
+
     <!-- Whether device has an alert slider. -->
     <bool name="config_hasAlertSlider">false</bool>
 

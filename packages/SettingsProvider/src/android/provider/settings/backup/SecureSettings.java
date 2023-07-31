@@ -240,6 +240,8 @@ public class SecureSettings {
         Settings.Secure.HEARING_AID_MEDIA_ROUTING,
         Settings.Secure.HEARING_AID_SYSTEM_SOUNDS_ROUTING,
         Settings.Secure.ACCESSIBILITY_FONT_SCALING_HAS_BEEN_CHANGED,
+        Settings.Secure.DC_DIM_AUTO_MODE,
+        Settings.Secure.DC_DIM_AUTO_TIME,
         Settings.Secure.DOZE_PICK_UP_GESTURE_AMBIENT,
         Settings.Secure.DOZE_TAP_GESTURE_AMBIENT,
         Settings.Secure.SEARCH_PRESS_HOLD_NAV_HANDLE_ENABLED,

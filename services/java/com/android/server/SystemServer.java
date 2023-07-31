@@ -132,6 +132,7 @@ import com.android.server.cpu.CpuMonitorService;
 import com.android.server.devicepolicy.DevicePolicyManagerService;
 import com.android.server.display.DcDimmingService;
 import com.android.server.devicestate.DeviceStateManagerService;
+import com.android.server.display.AutoDCDimService;
 import com.android.server.display.DisplayManagerService;
 import com.android.server.display.color.ColorDisplayService;
 import com.android.server.dreams.DreamManagerService;
@@ -1742,6 +1743,12 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(Smart5gService.class);
             t.traceEnd();
 
+            final String dcdNodePath = context.getResources().getString(R.string.config_dcdNodePath);
+            if (dcdNodePath != null && !dcdNodePath.isEmpty()) {
+                t.traceBegin("AutoDCDimService");
+                mSystemServiceManager.startService(AutoDCDimService.class);
+                t.traceEnd();
+            }
         } catch (Throwable e) {
             Slog.e("System", "******************************************");
             Slog.e("System", "************ Failure starting core service");

@@ -31,6 +31,7 @@ import static android.provider.settings.validators.SettingsValidators.NON_NEGATI
 import static android.provider.settings.validators.SettingsValidators.NULLABLE_COMPONENT_NAME_VALIDATOR;
 import static android.provider.settings.validators.SettingsValidators.PACKAGE_NAME_VALIDATOR;
 import static android.provider.settings.validators.SettingsValidators.PERCENTAGE_INTEGER_VALIDATOR;
+import static android.provider.settings.validators.SettingsValidators.TIME_RANGE_VALIDATOR;
 import static android.provider.settings.validators.SettingsValidators.TILE_LIST_VALIDATOR;
 import static android.provider.settings.validators.SettingsValidators.TTS_LIST_VALIDATOR;
 
@@ -383,6 +384,8 @@ public class SecureSettingsValidators {
                 new DiscreteValueValidator(new String[] {"0", "1", "2"}));
         VALIDATORS.put(Secure.HEARING_AID_SYSTEM_SOUNDS_ROUTING,
                 new DiscreteValueValidator(new String[] {"0", "1", "2"}));
+        VALIDATORS.put(Secure.DC_DIM_AUTO_MODE, new DiscreteValueValidator(new String[] {"0", "1", "2", "3", "4"}));
+        VALIDATORS.put(Secure.DC_DIM_AUTO_TIME, TIME_RANGE_VALIDATOR);
         VALIDATORS.put(Secure.ACCESSIBILITY_FONT_SCALING_HAS_BEEN_CHANGED, BOOLEAN_VALIDATOR);
         VALIDATORS.put(Secure.NAVIGATION_BAR_HINT, BOOLEAN_VALIDATOR);
         VALIDATORS.put(Secure.DOZE_TAP_GESTURE_AMBIENT, BOOLEAN_VALIDATOR);
